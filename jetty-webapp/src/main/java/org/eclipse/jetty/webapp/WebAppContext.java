@@ -71,6 +71,8 @@ import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
+import org.eclipse.jetty.webapp.Configuration.ClassList;
+import org.eclipse.jetty.webapp.Configuration.DefaultClassList;
 
 /** 
  * Web Application Context Handler.
@@ -100,11 +102,20 @@ public class WebAppContext extends ServletContextHandler implements WebAppClassL
 
     public static final String[] DEFAULT_CONFIGURATION_CLASSES =
     {
-        "org.eclipse.jetty.webapp.WebInfConfiguration",
-        "org.eclipse.jetty.webapp.WebXmlConfiguration",
-        "org.eclipse.jetty.webapp.MetaInfConfiguration",
-        "org.eclipse.jetty.webapp.FragmentConfiguration",
-        "org.eclipse.jetty.webapp.JettyWebXmlConfiguration"
+	    "org.eclipse.jetty.webapp.WebInfConfiguration",
+	    "org.eclipse.jetty.webapp.WebXmlConfiguration",
+	    "org.eclipse.jetty.webapp.MetaInfConfiguration",
+	    "org.eclipse.jetty.webapp.FragmentConfiguration",
+	    "org.eclipse.jetty.webapp.JettyWebXmlConfiguration"
+    } ;
+    
+    public static final Configuration[] DEFAULT_CONFIGURATIONS =
+    {
+    	new WebInfConfiguration(),
+        new WebXmlConfiguration(),
+        new MetaInfConfiguration(),
+        new FragmentConfiguration(),
+        new JettyWebXmlConfiguration()
     } ;
 
     // System classes are classes that cannot be replaced by
@@ -925,8 +936,16 @@ public class WebAppContext extends ServletContextHandler implements WebAppClassL
         if (_configurations.size()>0)
             return;
         
-        if (_configurationClasses.size()==0)
-            _configurationClasses.addAll(Configuration.ClassList.serverDefault(getServer()));
+        if (_configurationClasses.size()==0) {
+        	ClassList serverDefault = Configuration.ClassList.serverDefault(getServer());
+        	if (serverDefault instanceof DefaultClassList) {
+        		_configurationClasses.addAll(serverDefault);
+        		_configurations.addAll(Arrays.asList(DEFAULT_CONFIGURATIONS));
+        		return;
+        	} else {
+        		_configurationClasses.addAll(serverDefault);
+        	}
+        }
         for (String configClass : _configurationClasses)
             _configurations.add((Configuration)Loader.loadClass(configClass).newInstance());
     }

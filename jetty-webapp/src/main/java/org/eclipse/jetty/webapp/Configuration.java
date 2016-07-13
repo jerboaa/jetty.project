@@ -96,7 +96,7 @@ public interface Configuration
     
     
     public class ClassList extends ArrayList<String>
-    {        
+    {
         /* ------------------------------------------------------------ */
         /** Get/Set/Create the server default Configuration ClassList.
          * <p>Get the class list from: a Server bean; or the attribute (which can
@@ -140,12 +140,7 @@ public interface Configuration
                 if (attr instanceof String[])
                     return new ClassList((String[])attr);
             }
-            return new ClassList();
-        }
-        
-        public ClassList()
-        {
-            this(WebAppContext.DEFAULT_CONFIGURATION_CLASSES);
+            return new DefaultClassList();
         }
         
         public ClassList(String[] classes)
@@ -197,5 +192,12 @@ public interface Configuration
             throw new IllegalArgumentException("beforeClass '"+beforeClass+"' not found in "+this);
         }
         
+    }
+    
+    class DefaultClassList extends ClassList {
+    	
+    	private DefaultClassList() {
+    		super(WebAppContext.DEFAULT_CONFIGURATION_CLASSES);
+    	}
     }
 }
